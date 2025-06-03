@@ -1,4 +1,4 @@
-// ggwave.js must be loaded before this script
+import { toggleSpeechRecognition } from './speech.js';
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 let context = null;
@@ -15,6 +15,7 @@ const sendBtn = document.getElementById("sendBtn");
 const receiveBtn = document.getElementById("receiveBtn");
 const stopReceiveBtn = document.getElementById("stopReceiveBtn");
 const statusEl = document.getElementById("status");
+const speechToggleBtn = document.getElementById("speechToggleBtn");
 
 function setStatus(msg) {
     statusEl.textContent = msg;
@@ -125,3 +126,27 @@ ggwave_factory().then(function (obj) {
 });
 // 受信は初期状態で停止
 stopReceiveBtn.hidden = true;
+
+// 音声認識トグル
+let speechActive = false;
+speechToggleBtn.addEventListener('click', () => {
+    toggleSpeechRecognition(
+        receivedText,
+        'ja-JP',
+        () => {
+            speechActive = true;
+            speechToggleBtn.textContent = '音声認識OFF';
+            setStatus('音声認識中...');
+        },
+        () => {
+            speechActive = false;
+            speechToggleBtn.textContent = '音声認識ON';
+            setStatus('音声認識停止');
+        },
+        (err) => {
+            setStatus('音声認識エラー: ' + (err && err.error));
+            speechActive = false;
+            speechToggleBtn.textContent = '音声認識ON';
+        }
+    );
+});
