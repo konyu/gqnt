@@ -150,3 +150,9 @@ speechToggleBtn.addEventListener('click', () => {
         }
     );
 });
+
+// --- グローバル変数をwindowにexport ---
+window.ggwave = ggwave;
+window.context = context;
+window.instance = instance;
+window.convertTypedArray = convertTypedArray;
