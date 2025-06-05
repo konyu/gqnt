@@ -106,17 +106,25 @@ function App() {
 
   // main.js準拠: decode時にInt8Arrayへ型変換してdecode
   const handleDecode = () => {
-    if (!ggwave || !lastWaveform) return;
+    if (!ggwave) return;
+    
+    // params と instance が初期化されていない場合は初期化
+    if (!paramsRef.current) {
+      paramsRef.current = ggwave.getDefaultParameters();
+    }
+    if (!instanceRef.current) {
+      instanceRef.current = ggwave.init(paramsRef.current);
+    }
+
+    if (!lastWaveform) {
+      setDecodeResult("decode error: no waveform data");
+      return;
+    }
+    
     try {
-      if (!paramsRef.current || !instanceRef.current) {
-        setDecodeResult("decode error: params/instance not initialized");
-        return;
-      }
-      // main.js同様にInt8Arrayへ型変換してdecode
       const int8buf = convertTypedArray(lastWaveform, Int8Array);
       let res = ggwave.decode(instanceRef.current, int8buf);
       if (res && res.length > 0) {
-        // main.js同様にTextDecoderで文字列化
         const text = new TextDecoder("utf-8").decode(res);
         setDecodeResult(`decoded: ${text}`);
       } else {
