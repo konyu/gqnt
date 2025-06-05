@@ -48,7 +48,7 @@ function App() {
       "ja-JP",
       () => {
         setIsListening(true);
-        setSpeechText(""); // 音声認識開始時にクリア
+        // setSpeechText(""); // ここはクリアしない
       },
       () => {
         setIsListening(false);
@@ -56,6 +56,16 @@ function App() {
       (err: any) => {
         console.error("音声認識エラー:", err);
         setIsListening(false);
+      },
+      (event: any) => {
+        // 最終認識結果だけspeechTextに反映
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const result = event.results[i];
+          if (result.isFinal) {
+            setSpeechText(result[0].transcript);
+            console.log("最終認識結果:", result[0].transcript);
+          }
+        }
       }
     );
 

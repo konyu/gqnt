@@ -13,12 +13,13 @@ export function toggleSpeechRecognition(
     lang = 'ja-JP',
     onStart?: () => void,
     onEnd?: () => void,
-    onError?: (error: any) => void
+    onError?: (error: any) => void,
+    onResult?: (event: any) => void
 ) {
     if (recognizing) {
         stopSpeechRecognition(onEnd);
     } else {
-        startSpeechRecognition(textarea, lang, onStart, onEnd, onError);
+        startSpeechRecognition(textarea, lang, onStart, onEnd, onError, onResult);
     }
 }
 
@@ -27,7 +28,8 @@ function startSpeechRecognition(
     lang = 'ja-JP',
     onStart?: () => void,
     onEnd?: () => void,
-    onError?: (error: any) => void
+    onError?: (error: any) => void,
+    onResult?: (event: any) => void
 ) {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         alert('このブラウザは音声認識に対応していません');
@@ -63,9 +65,11 @@ function startSpeechRecognition(
         if (finalTranscript) {
             textarea.value = finalTranscript;
             // Reactの状態更新をトリガー
-            const event = new Event('input', { bubbles: true });
-            textarea.dispatchEvent(event);
+            const eventInput = new Event('input', { bubbles: true });
+            textarea.dispatchEvent(eventInput);
         }
+        // 追加: React側に生のeventを渡す
+        if (onResult) onResult(event);
     };
 
     try {
