@@ -2,6 +2,8 @@
 import React, { useEffect, useRef } from "react";
 import { loadGgWave } from "./ggwaveLoader";
 import { toggleSpeechRecognition } from "./utils/speech";
+import { chatWithOpenRouter } from "./utils/openrouter";
+import { hiraToKata } from "./utils/kana";
 
 // main.jsの型変換ユーティリティをTypeScript化
 function convertTypedArray<
@@ -24,6 +26,11 @@ function App() {
   const [speechText, setSpeechText] = React.useState<string>("");
   const [isListening, setIsListening] = React.useState(false);
   const speechTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // OpenRouter AI
+  const [aiResponse, setAiResponse] = React.useState<string>("");
+  const [isAiLoading, setIsAiLoading] = React.useState(false);
+  const [aiError, setAiError] = React.useState<string>("");
 
   const [protocolIdInfo, setProtocolIdInfo] = React.useState<string>("");
 
@@ -63,7 +70,7 @@ function App() {
           const result = event.results[i];
           if (result.isFinal) {
             setSpeechText(result[0].transcript);
-            console.log("最終認識結果:", result[0].transcript);
+            console.log("認識結果:", result[0].transcript);
           }
         }
       }
@@ -80,6 +87,42 @@ function App() {
   // 音声認識のテキストをエンコード用にコピー
   const handleUseSpeechText = () => {
     setInputText(speechText);
+  };
+
+  // OpenRouter AIへ問い合わせ
+  const handleAskOpenRouter = async () => {
+    setIsAiLoading(true);
+    setAiError("");
+    setAiResponse("");
+    try {
+      const res = await chatWithOpenRouter([
+        // {
+        //   role: "system",
+        //   content:
+        // },
+        {
+          role: "system",
+          content: `
+あなたはカタコトの短い日本語で会話をするロボットです。
+[ユーザの発言]に対して、20文字以内で、できるだけ簡単に、短く、カタコトで会話をしてください。
+話し方はカジュアル。
+
+[ユーザの発言]
+${speechText}
+
+[出力例]
+ソウダネ ヨクワカルヨ
+`,
+        },
+      ]);
+      const resContent = res.content;
+
+      setAiResponse(resContent ? hiraToKata(resContent) : "(no response)");
+    } catch (e: any) {
+      setAiError(e.message || String(e));
+    } finally {
+      setIsAiLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -309,6 +352,33 @@ function App() {
                   className="w-full min-h-[100px] p-2 text-base rounded border border-gray-300 mb-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
                   placeholder="音声認識の結果がここに表示されます"
                 />
+
+                {/* OpenRouter AI連携デモ */}
+                <section className="mb-8">
+                  <h3 className="text-lg font-semibold mb-2">
+                    OpenRouter AI応答
+                  </h3>
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      onClick={handleAskOpenRouter}
+                      disabled={isAiLoading || !speechText}
+                      className="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 disabled:opacity-50"
+                    >
+                      {isAiLoading
+                        ? "送信中..."
+                        : "AIに質問（音声認識結果を送信）"}
+                    </button>
+                  </div>
+                  {aiError && (
+                    <p className="text-red-500 font-semibold">{aiError}</p>
+                  )}
+                  {aiResponse && (
+                    <div className="mt-2 p-3 bg-gray-100 rounded text-gray-800">
+                      <span className="font-bold">AI応答：</span>
+                      {aiResponse}
+                    </div>
+                  )}
+                </section>
               </section>
 
               <section className="mb-8">
