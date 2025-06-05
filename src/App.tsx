@@ -166,107 +166,73 @@ function App() {
   };
 
   return (
-    <div>
-      {ggwave ? (
-        <>
-          <div style={{ margin: "1em 0" }}>
-            <div style={{ marginBottom: "1.5em" }}>
-              <h3>音声入力</h3>
-              <div style={{ display: 'flex', gap: '0.5em', margin: '0.5em 0' }}>
-                <button 
-                  onClick={handleToggleSpeechRecognition}
-                  style={{
-                    padding: '0.5em 1em',
-                    backgroundColor: isListening ? '#ff6b6b' : '#4CAF50',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {isListening ? '音声認識を停止' : '音声入力開始'}
-                </button>
-              </div>
-              <textarea
-                ref={speechTextareaRef}
-                value={speechText}
-                onChange={(e) => setSpeechText(e.target.value)}
-                style={{
-                  width: '100%',
-                  minHeight: '100px',
-                  padding: '0.5em',
-                  fontSize: '1em',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  margin: '0.5em 0'
-                }}
-                placeholder="音声認識の結果がここに表示されます"
-              />
-            </div>
-
-            <div>
-              <h3>エンコードする文字列</h3>
-              <div style={{ display: 'flex', gap: '0.5em', margin: '0.5em 0' }}>
-                <input
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  style={{ 
-                    flex: 1, 
-                    padding: '0.5em',
-                    fontSize: '1em',
-                    borderRadius: '4px',
-                    border: '1px solid #ccc'
-                  }}
-                  placeholder="エンコードする文字列を入力"
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex flex-col items-center py-8 px-2">
+      <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-8">
+        {ggwave ? (
+          <>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center">音声通信デモ</h2>
+              <section className="mb-8">
+                <h3 className="text-lg font-semibold mb-2">音声入力</h3>
+                <div className="flex gap-2 mb-2">
+                  <button
+                    onClick={handleToggleSpeechRecognition}
+                    className={`px-4 py-2 rounded transition-colors font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400 ${isListening ? 'bg-red-500 hover:bg-red-400' : 'bg-green-500 hover:bg-green-400'} text-white`}
+                  >
+                    {isListening ? '音声認識を停止' : '音声入力開始'}
+                  </button>
+                </div>
+                <textarea
+                  ref={speechTextareaRef}
+                  value={speechText}
+                  onChange={(e) => setSpeechText(e.target.value)}
+                  className="w-full min-h-[100px] p-2 text-base rounded border border-gray-300 mb-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                  placeholder="音声認識の結果がここに表示されます"
                 />
-                <button 
-                  onClick={handleEncode} 
-                  style={{ 
-                    padding: '0 1.5em',
-                    backgroundColor: '#2196F3',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Encode
-                </button>
-              </div>
-              {speechText && (
-                <button 
-                  onClick={handleUseSpeechText}
-                  style={{
-                    marginTop: '0.5em',
-                    padding: '0.3em 0.8em',
-                    backgroundColor: '#9C27B0',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '0.9em'
-                  }}
-                >
-                  音声認識の結果をコピー
-                </button>
-              )}
+              </section>
+
+              <section className="mb-8">
+                <h3 className="text-lg font-semibold mb-2">エンコードする文字列</h3>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    className="flex-1 p-2 text-base rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    placeholder="エンコードする文字列を入力"
+                  />
+                  <button
+                    onClick={handleEncode}
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
+                  >
+                    Encode
+                  </button>
+                </div>
+                {speechText && (
+                  <button
+                    onClick={handleUseSpeechText}
+                    className="mt-2 px-4 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded font-semibold text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400"
+                  >
+                    音声認識の結果をコピー
+                  </button>
+                )}
+              </section>
+              <button
+                onClick={handleDecode}
+                disabled={!lastWaveform}
+                className="ml-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                decode
+              </button>
             </div>
-            <button
-              onClick={handleDecode}
-              disabled={!lastWaveform}
-              style={{ marginLeft: "0.5em" }}
-            >
-              decode
-            </button>
-          </div>
-          {encodeError && <p style={{ color: "red" }}>{encodeError}</p>}
-          {encodeResult && <p>{encodeResult}</p>}
-          {decodeResult && <p>{decodeResult}</p>}
-        </>
-      ) : (
-        <p>ggwave 読み込み中...</p>
-      )}
+            {encodeError && <p className="text-red-500 font-semibold">{encodeError}</p>}
+            {encodeResult && <p className="text-green-700 font-semibold">{encodeResult}</p>}
+            {decodeResult && <p className="text-blue-700 font-semibold">{decodeResult}</p>}
+          </>
+        ) : (
+          <p className="text-gray-500 text-center">ggwave 読み込み中...</p>
+        )}
+      </div>
     </div>
   );
 }
