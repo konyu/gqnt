@@ -34,6 +34,11 @@ function App() {
   // Audio context for playback
   const audioCtxRef = React.useRef<AudioContext | null>(null);
 
+  // --- ggwaveマイク受信用 ---
+  const [isCapturing, setIsCapturing] = React.useState(false);
+  const recorderRef = React.useRef<ScriptProcessorNode | null>(null);
+  const mediaStreamRef = React.useRef<MediaStreamAudioSourceNode | null>(null);
+
   // 音声認識のトグル処理
   const handleToggleSpeechRecognition = () => {
     if (!speechTextareaRef.current) return;
@@ -70,6 +75,94 @@ function App() {
         console.log("ProtocolId():", proto);
       }
     });
+  }, []);
+
+  // --- マイク受信開始 ---
+  const handleStartCapture = async () => {
+    if (!ggwave) return;
+    setDecodeResult("");
+    setIsCapturing(true);
+    if (!audioCtxRef.current) {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      audioCtxRef.current = new AudioContextClass({ sampleRate: 48000 });
+    }
+    if (!paramsRef.current) {
+      paramsRef.current = ggwave.getDefaultParameters();
+      paramsRef.current.sampleRateInp = audioCtxRef.current.sampleRate;
+      paramsRef.current.sampleRateOut = audioCtxRef.current.sampleRate;
+    }
+    if (!instanceRef.current) {
+      instanceRef.current = ggwave.init(paramsRef.current);
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          autoGainControl: false,
+          noiseSuppression: false,
+        },
+      });
+      const ctx = audioCtxRef.current!;
+      const mediaStream = ctx.createMediaStreamSource(stream);
+      mediaStreamRef.current = mediaStream;
+      const bufferSize = 1024;
+      const numberOfInputChannels = 1;
+      const numberOfOutputChannels = 1;
+      const recorder = ctx.createScriptProcessor(
+        bufferSize,
+        numberOfInputChannels,
+        numberOfOutputChannels
+      );
+      recorder.onaudioprocess = (e) => {
+        const source = e.inputBuffer;
+        // ggwave.decode expects Int8Array
+        const int8buf = convertTypedArray(new Float32Array(source.getChannelData(0)), Int8Array);
+        let res;
+        try {
+          res = ggwave.decode(instanceRef.current, int8buf);
+        } catch (err) {
+          setDecodeResult(`decode error: ${String(err)}`);
+          return;
+        }
+        if (res && res.length > 0) {
+          const text = new TextDecoder("utf-8").decode(res);
+          setDecodeResult(`decoded: ${text}`);
+        }
+      };
+      mediaStream.connect(recorder);
+      recorder.connect(ctx.destination);
+      recorderRef.current = recorder;
+      setDecodeResult("Listening ...");
+    } catch (err) {
+      setDecodeResult(`マイク取得エラー: ${String(err)}`);
+      setIsCapturing(false);
+    }
+  };
+
+  // --- マイク受信停止 ---
+  const handleStopCapture = () => {
+    setIsCapturing(false);
+    setDecodeResult("Audio capture is paused! 受信開始ボタンで再開できます");
+    try {
+      if (recorderRef.current) {
+        recorderRef.current.disconnect();
+        recorderRef.current.onaudioprocess = null;
+      }
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.disconnect();
+      }
+      recorderRef.current = null;
+      mediaStreamRef.current = null;
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  // --- アンマウント時クリーンアップ ---
+  useEffect(() => {
+    return () => {
+      handleStopCapture();
+    };
   }, []);
 
   const [encodeError, setEncodeError] = React.useState<string>("");
@@ -179,7 +272,7 @@ function App() {
                     onClick={handleToggleSpeechRecognition}
                     className={`px-4 py-2 rounded transition-colors font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400 ${isListening ? 'bg-red-500 hover:bg-red-400' : 'bg-green-500 hover:bg-green-400'} text-white`}
                   >
-                    {isListening ? '音声認識を停止' : '音声入力開始'}
+                    {isListening ? 'マイクOFF' : 'マイクON'}
                   </button>
                 </div>
                 <textarea
@@ -224,6 +317,24 @@ function App() {
               >
                 decode
               </button>
+            </div>
+            {/* --- 追加: マイク受信ボタン --- */}
+            <div className="mb-4 flex gap-2">
+              {!isCapturing ? (
+                <button
+                  onClick={handleStartCapture}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+                >
+                  受信開始（マイク）
+                </button>
+              ) : (
+                <button
+                  onClick={handleStopCapture}
+                  className="px-4 py-2 bg-gray-500 hover:bg-gray-400 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+                >
+                  受信停止
+                </button>
+              )}
             </div>
             {encodeError && <p className="text-red-500 font-semibold">{encodeError}</p>}
             {encodeResult && <p className="text-green-700 font-semibold">{encodeResult}</p>}
