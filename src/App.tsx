@@ -45,7 +45,7 @@ function App() {
 
     toggleSpeechRecognition(
       speechTextareaRef.current,
-      'ja-JP',
+      "ja-JP",
       () => {
         setIsListening(true);
         setSpeechText(""); // 音声認識開始時にクリア
@@ -54,10 +54,17 @@ function App() {
         setIsListening(false);
       },
       (err: any) => {
-        console.error('音声認識エラー:', err);
+        console.error("音声認識エラー:", err);
         setIsListening(false);
       }
     );
+
+    // 排他制御: キャプチャ中なら停止、そうでなければ開始
+    if (isCapturing) {
+      handleStopCapture();
+    } else {
+      handleStartCapture();
+    }
   };
 
   // 音声認識のテキストをエンコード用にコピー
@@ -83,7 +90,8 @@ function App() {
     setDecodeResult("");
     setIsCapturing(true);
     if (!audioCtxRef.current) {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContextClass =
+        window.AudioContext || (window as any).webkitAudioContext;
       audioCtxRef.current = new AudioContextClass({ sampleRate: 48000 });
     }
     if (!paramsRef.current) {
@@ -116,7 +124,10 @@ function App() {
       recorder.onaudioprocess = (e) => {
         const source = e.inputBuffer;
         // ggwave.decode expects Int8Array
-        const int8buf = convertTypedArray(new Float32Array(source.getChannelData(0)), Int8Array);
+        const int8buf = convertTypedArray(
+          new Float32Array(source.getChannelData(0)),
+          Int8Array
+        );
         let res;
         try {
           res = ggwave.decode(instanceRef.current, int8buf);
@@ -230,7 +241,7 @@ function App() {
   // main.js準拠: decode時にInt8Arrayへ型変換してdecode
   const handleDecode = () => {
     if (!ggwave) return;
-    
+
     // params と instance が初期化されていない場合は初期化
     if (!paramsRef.current) {
       paramsRef.current = ggwave.getDefaultParameters();
@@ -243,7 +254,7 @@ function App() {
       setDecodeResult("decode error: no waveform data");
       return;
     }
-    
+
     try {
       const int8buf = convertTypedArray(lastWaveform, Int8Array);
       let res = ggwave.decode(instanceRef.current, int8buf);
@@ -264,15 +275,21 @@ function App() {
         {ggwave ? (
           <>
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center">音声通信デモ</h2>
+              <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center">
+                音声通信デモ
+              </h2>
               <section className="mb-8">
                 <h3 className="text-lg font-semibold mb-2">音声入力</h3>
                 <div className="flex gap-2 mb-2">
                   <button
                     onClick={handleToggleSpeechRecognition}
-                    className={`px-4 py-2 rounded transition-colors font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400 ${isListening ? 'bg-red-500 hover:bg-red-400' : 'bg-green-500 hover:bg-green-400'} text-white`}
+                    className={`px-4 py-2 rounded transition-colors font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400 ${
+                      isListening
+                        ? "bg-red-500 hover:bg-red-400"
+                        : "bg-green-500 hover:bg-green-400"
+                    } text-white`}
                   >
-                    {isListening ? 'マイクOFF' : 'マイクON'}
+                    {isListening ? "マイクOFF" : "マイクON"}
                   </button>
                 </div>
                 <textarea
@@ -285,7 +302,9 @@ function App() {
               </section>
 
               <section className="mb-8">
-                <h3 className="text-lg font-semibold mb-2">エンコードする文字列</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  エンコードする文字列
+                </h3>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -336,9 +355,15 @@ function App() {
                 </button>
               )}
             </div>
-            {encodeError && <p className="text-red-500 font-semibold">{encodeError}</p>}
-            {encodeResult && <p className="text-green-700 font-semibold">{encodeResult}</p>}
-            {decodeResult && <p className="text-blue-700 font-semibold">{decodeResult}</p>}
+            {encodeError && (
+              <p className="text-red-500 font-semibold">{encodeError}</p>
+            )}
+            {encodeResult && (
+              <p className="text-green-700 font-semibold">{encodeResult}</p>
+            )}
+            {decodeResult && (
+              <p className="text-blue-700 font-semibold">{decodeResult}</p>
+            )}
           </>
         ) : (
           <p className="text-gray-500 text-center">ggwave 読み込み中...</p>
