@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { loadGgWave } from "./ggwaveLoader";
 import { toggleSpeechRecognition } from "./utils/speech";
 import { chatWithOpenRouter } from "./utils/openrouter";
@@ -16,35 +16,33 @@ function convertTypedArray<
 }
 
 function App() {
-  const [ggwave, setGgWave] = React.useState<any>(null);
-  const [encodeResult, setEncodeResult] = React.useState<string>("");
-  const [decodeResult, setDecodeResult] = React.useState<string>("");
-  const [lastWaveform, setLastWaveform] = React.useState<Float32Array | null>(
-    null
-  );
-  const [inputText, setInputText] = React.useState<string>("hello js");
-  const [speechText, setSpeechText] = React.useState<string>("");
-  const [isListening, setIsListening] = React.useState(false);
+  const [ggwave, setGgWave] = useState<any>(null);
+  const [encodeResult, setEncodeResult] = useState<string>("");
+  const [decodeResult, setDecodeResult] = useState<string>("");
+  const [lastWaveform, setLastWaveform] = useState<Float32Array | null>(null);
+  const [inputText, setInputText] = useState<string>("hello js");
+  const [speechText, setSpeechText] = useState<string>("");
+  const [isListening, setIsListening] = useState(false);
   const speechTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // OpenRouter AI
-  const [aiResponse, setAiResponse] = React.useState<string>("");
-  const [isAiLoading, setIsAiLoading] = React.useState(false);
-  const [aiError, setAiError] = React.useState<string>("");
+  const [aiResponse, setAiResponse] = useState<string>("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string>("");
 
-  const [protocolIdInfo, setProtocolIdInfo] = React.useState<string>("");
+  const [protocolIdInfo, setProtocolIdInfo] = useState<string>("");
 
   // ggwave params/instance をグローバルで保持
-  const paramsRef = React.useRef<any>(null);
-  const instanceRef = React.useRef<any>(null);
+  const paramsRef = useRef<any>(null);
+  const instanceRef = useRef<any>(null);
 
   // Audio context for playback
-  const audioCtxRef = React.useRef<AudioContext | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   // --- ggwaveマイク受信用 ---
-  const [isCapturing, setIsCapturing] = React.useState(false);
-  const recorderRef = React.useRef<ScriptProcessorNode | null>(null);
-  const mediaStreamRef = React.useRef<MediaStreamAudioSourceNode | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const recorderRef = useRef<ScriptProcessorNode | null>(null);
+  const mediaStreamRef = useRef<MediaStreamAudioSourceNode | null>(null);
 
   // 音声認識のトグル処理
   const handleToggleSpeechRecognition = () => {
@@ -229,7 +227,7 @@ ${speechText}
     };
   }, []);
 
-  const [encodeError, setEncodeError] = React.useState<string>("");
+  const [encodeError, setEncodeError] = useState<string>("");
 
   // main.js準拠: encode→Float32Arrayに変換してAudioContextで再生
   const handleEncode = () => {
