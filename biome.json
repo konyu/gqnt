@@ -1,0 +1,9 @@
+{
+  "extends": [],
+  "linter": {
+    "enabled": true
+  },
+  "formatter": {
+    "enabled": true
+  }
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ggwave JS メッセージ送受信デモ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ggwave メッセージ送受信デモ</h1>
+        <div class="form-group">
+            <label for="sendText">送信する文字列:</label>
+            <input type="text" id="sendText" value="こんにちは ggwave" />
+            <button id="sendBtn">送信</button>
+        </div>
+        <div class="form-group">
+            <button id="receiveBtn">受信開始</button>
+            <button id="stopReceiveBtn">受信停止</button>
+        </div>
+        <div class="form-group">
+            <button id="speechToggleBtn">音声認識ON</button>
+        </div>
+        <div class="form-group">
+            <label for="receivedText">受信結果:</label>
+            <textarea id="receivedText" rows="4" readonly></textarea>
+        </div>
+        <div id="status"></div>
+        <hr>
+        <div class="form-group">
+            <h2>コンチと会話しよう</h2>
+            <label for="konchiUserText">あなたの発話:</label>
+            <textarea id="konchiUserText" rows="2"></textarea>
+            <button id="konchiMicBtn">マイクON</button>
+            <button id="konchiSendBtn">送信</button>
+        </div>
+        <div class="form-group">
+            <label for="konchiBotText">コンチの返事:</label>
+            <textarea id="konchiBotText" rows="2" readonly></textarea>
+        </div>
+        <div class="form-group">
+            <label for="openaiApiKey">OpenAI APIキー:</label>
+            <input type="password" id="openaiApiKey" placeholder="sk-..." style="width: 300px;">
+        </div>
+    </div>
+    <!-- ggwave wasm loader (CDN or local) -->
+    <script src="https://ggwave-js.ggerganov.com/ggwave.js"></script>
+    <script type="module" src="main.js"></script>
+    <script type="module">
+        import { setupKonchiChat } from './konchi.js';
+        window.addEventListener('DOMContentLoaded', () => {
+            setupKonchiChat({
+                micBtn: document.getElementById('konchiMicBtn'),
+                userTextArea: document.getElementById('konchiUserText'),
+                botTextArea: document.getElementById('konchiBotText'),
+                sendBtn: document.getElementById('konchiSendBtn'),
+                apiKeyInput: document.getElementById('openaiApiKey'),
+                statusEl: document.getElementById('status'),
+                ggwave: window.ggwave,
+                context: window.context,
+                instance: window.instance,
+                convertTypedArray: window.convertTypedArray
+            });
+        });
+    </script>
+</body>
+</html>
