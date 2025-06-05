@@ -1,6 +1,7 @@
 // src/App.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { loadGgWave } from "./ggwaveLoader";
+import { toggleSpeechRecognition } from "./utils/speech";
 
 // main.jsの型変換ユーティリティをTypeScript化
 function convertTypedArray<
@@ -20,6 +21,9 @@ function App() {
     null
   );
   const [inputText, setInputText] = React.useState<string>("hello js");
+  const [speechText, setSpeechText] = React.useState<string>("");
+  const [isListening, setIsListening] = React.useState(false);
+  const speechTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [protocolIdInfo, setProtocolIdInfo] = React.useState<string>("");
 
@@ -29,6 +33,32 @@ function App() {
 
   // Audio context for playback
   const audioCtxRef = React.useRef<AudioContext | null>(null);
+
+  // 音声認識のトグル処理
+  const handleToggleSpeechRecognition = () => {
+    if (!speechTextareaRef.current) return;
+
+    toggleSpeechRecognition(
+      speechTextareaRef.current,
+      'ja-JP',
+      () => {
+        setIsListening(true);
+        setSpeechText(""); // 音声認識開始時にクリア
+      },
+      () => {
+        setIsListening(false);
+      },
+      (err: any) => {
+        console.error('音声認識エラー:', err);
+        setIsListening(false);
+      }
+    );
+  };
+
+  // 音声認識のテキストをエンコード用にコピー
+  const handleUseSpeechText = () => {
+    setInputText(speechText);
+  };
 
   useEffect(() => {
     loadGgWave().then((ggwaveObj) => {
@@ -140,16 +170,88 @@ function App() {
       {ggwave ? (
         <>
           <div style={{ margin: "1em 0" }}>
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              style={{ width: "60%", fontSize: "1em" }}
-              placeholder="エンコードする文字列を入力"
-            />
-            <button onClick={handleEncode} style={{ marginLeft: "0.5em" }}>
-              encode
-            </button>
+            <div style={{ marginBottom: "1.5em" }}>
+              <h3>音声入力</h3>
+              <div style={{ display: 'flex', gap: '0.5em', margin: '0.5em 0' }}>
+                <button 
+                  onClick={handleToggleSpeechRecognition}
+                  style={{
+                    padding: '0.5em 1em',
+                    backgroundColor: isListening ? '#ff6b6b' : '#4CAF50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isListening ? '音声認識を停止' : '音声入力開始'}
+                </button>
+              </div>
+              <textarea
+                ref={speechTextareaRef}
+                value={speechText}
+                onChange={(e) => setSpeechText(e.target.value)}
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  padding: '0.5em',
+                  fontSize: '1em',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  margin: '0.5em 0'
+                }}
+                placeholder="音声認識の結果がここに表示されます"
+              />
+            </div>
+
+            <div>
+              <h3>エンコードする文字列</h3>
+              <div style={{ display: 'flex', gap: '0.5em', margin: '0.5em 0' }}>
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  style={{ 
+                    flex: 1, 
+                    padding: '0.5em',
+                    fontSize: '1em',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc'
+                  }}
+                  placeholder="エンコードする文字列を入力"
+                />
+                <button 
+                  onClick={handleEncode} 
+                  style={{ 
+                    padding: '0 1.5em',
+                    backgroundColor: '#2196F3',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Encode
+                </button>
+              </div>
+              {speechText && (
+                <button 
+                  onClick={handleUseSpeechText}
+                  style={{
+                    marginTop: '0.5em',
+                    padding: '0.3em 0.8em',
+                    backgroundColor: '#9C27B0',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.9em'
+                  }}
+                >
+                  音声認識の結果をコピー
+                </button>
+              )}
+            </div>
             <button
               onClick={handleDecode}
               disabled={!lastWaveform}
