@@ -20,7 +20,7 @@ function App() {
   const [encodeResult, setEncodeResult] = useState<string>("");
   const [decodeResult, setDecodeResult] = useState<string>("");
   const [lastWaveform, setLastWaveform] = useState<Float32Array | null>(null);
-  const [inputText, setInputText] = useState<string>("hello js");
+  const [inputText, setInputText] = useState<string>("");
   const [speechText, setSpeechText] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
   const speechTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -102,20 +102,22 @@ function App() {
           role: "system",
           content: `
 あなたはカタコトの短い日本語で会話をするロボットです。
-[ユーザの発言]に対して、20文字以内で、できるだけ簡単に、短く、カタコトで会話をしてください。
+[ユーザの発言]に対して、20文字以内で、できるだけ会話をしてください。
 話し方はカジュアル。
 
 [ユーザの発言]
 ${speechText}
 
 [出力例]
-ソウダネ ヨクワカルヨ
+よかったね。私も嬉しい
 `,
         },
       ]);
-      const resContent = res.content;
+      const resContent = hiraToKata(res.content ?? "");
 
-      setAiResponse(resContent ? hiraToKata(resContent) : "(no response)");
+      setAiResponse(resContent || "(no response)");
+
+      setInputText(resContent);
     } catch (e: any) {
       setAiError(e.message || String(e));
     } finally {
