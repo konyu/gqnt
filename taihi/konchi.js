@@ -1,7 +1,7 @@
 // konchi.js
 // 「コンチと会話しよう」機能UI・ロジック
-import { toggleSpeechRecognition, startSpeechRecognition, stopSpeechRecognition } from './speech.js';
-import { converseWithKataKotoBot } from './openai_chat.js';
+import { toggleSpeechRecognition, startSpeechRecognition, stopSpeechRecognition } from '../speech.js';
+import { converseWithKataKotoBot } from '../openai_chat.js';
 
 let konchiActive = false;
 let apiKey = '';
