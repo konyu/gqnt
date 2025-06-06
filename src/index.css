@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 画像のデザインに合わせたカスタムボタン */
+.custom-wide-btn {
+  background: #ff1663;
+  color: #fff;
+  border-radius: 16px;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  box-shadow: none;
+  border: none;
+  transition: background 0.2s;
+  margin: 1.5rem 0;
+
+}
+.custom-wide-btn:hover,
+.custom-wide-btn:focus {
+  background: #e01459;
+}
+.custom-wide-btn .arrow {
+  font-size: 2.5rem;
+  margin-left: 1rem;
+  display: flex;
+  align-items: center;
+}

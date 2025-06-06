@@ -358,16 +358,11 @@ ${speechText}
               <section className="mb-8">
                 <h3 className="text-lg font-semibold mb-2">音声入力</h3>
                 <div className="flex gap-2 mb-2">
-                  <button
+                  <button className="custom-wide-btn"
                     onClick={handleToggleSpeechRecognition}
-                    className={`px-4 py-2 rounded transition-colors font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400 ${
-                      isListening
-                        ? "bg-red-500 hover:bg-red-400"
-                        : "bg-green-500 hover:bg-green-400"
-                    } text-white`}
                   >
                     {isListening ? "マイクOFF" : "マイクON"}
-                  </button>
+                  <span className="arrow">&gt;</span></button>
                 </div>
                 <textarea
                   ref={speechTextareaRef}
@@ -383,18 +378,17 @@ ${speechText}
                     OpenRouter AI応答
                   </h3>
                   <div className="flex gap-2 mb-2">
-                    <button
+                    <button className="custom-wide-btn"
                       onClick={handleAskOpenRouter}
                       disabled={isAiLoading || !speechText}
-                      className="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 disabled:opacity-50"
                     >
                       {isAiLoading
                         ? "送信中..."
                         : "AIに質問（音声認識結果を送信）"}
-                    </button>
+                    <span className="arrow">&gt;</span></button>
                   </div>
                   {aiError && (
-                    <p className="text-red-500 font-semibold">{aiError}</p>
+                    <p className="text-red-500 font-semibold">{ aiError}</p>
                   )}
                   {aiResponse && (
                     <div className="mt-2 p-3 bg-gray-100 rounded text-gray-800">
@@ -417,56 +411,51 @@ ${speechText}
                     className="flex-1 p-2 text-base rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
                     placeholder="エンコードする文字列を入力"
                   />
-                  <button
+                  <button className="custom-wide-btn"
                     onClick={handleEncode}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
                   >
                     Encode
-                  </button>
+                  <span className="arrow">&gt;</span></button>
                 </div>
                 {speechText && (
-                  <button
+                  <button className="custom-wide-btn"
                     onClick={handleUseSpeechText}
-                    className="mt-2 px-4 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded font-semibold text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-400"
                   >
                     音声認識の結果をコピー
-                  </button>
+                  <span className="arrow">&gt;</span></button>
                 )}
               </section>
-              <button
+              <button className="custom-wide-btn"
                 onClick={handleDecode}
                 disabled={!lastWaveform}
-                className="ml-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 decode
-              </button>
+              <span className="arrow">&gt;</span></button>
             </div>
             {/* --- 追加: マイク受信ボタン --- */}
             <div className="mb-4 flex gap-2">
               {!isCapturing ? (
-                <button
+                <button className="custom-wide-btn"
                   onClick={handleStartCapture}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
                 >
                   受信開始（マイク）
-                </button>
+                <span className="arrow">&gt;</span></button>
               ) : (
-                <button
+                <button className="custom-wide-btn"
                   onClick={handleStopCapture}
-                  className="px-4 py-2 bg-gray-500 hover:bg-gray-400 text-white rounded font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
                 >
                   受信停止
-                </button>
+                <span className="arrow">&gt;</span></button>
               )}
             </div>
             {encodeError && (
-              <p className="text-red-500 font-semibold">{encodeError}</p>
+              <p className="text-red-500 font-semibold">{ encodeError}</p>
             )}
             {encodeResult && (
-              <p className="text-green-700 font-semibold">{encodeResult}</p>
+              <p className="text-green-700 font-semibold">{ encodeResult}</p>
             )}
             {decodeResult && (
-              <p className="text-blue-700 font-semibold">{decodeResult}</p>
+              <p className="text-blue-700 font-semibold">{ decodeResult}</p>
             )}
           </>
         ) : (
