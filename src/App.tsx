@@ -21,8 +21,23 @@ function App() {
   const [decodeResult, setDecodeResult] = useState<string>("");
   const [lastWaveform, setLastWaveform] = useState<Float32Array | null>(null);
   const [inputText, setInputText] = useState<string>("");
+
+  // inputText更新時のイベント発火
+  useEffect(() => {
+    if (inputText !== "") {
+      handleEncode();
+    }
+  }, [inputText]);
+
   const [speechText, setSpeechText] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
+
+  // speechText更新時にOpenRouter AIへ問い合わせ
+  useEffect(() => {
+    if (speechText !== "") {
+      handleAskOpenRouter();
+    }
+  }, [speechText]);
   const speechTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // OpenRouter AI
@@ -67,8 +82,10 @@ function App() {
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           const result = event.results[i];
           if (result.isFinal) {
-            setSpeechText(result[0].transcript);
-            console.log("認識結果:", result[0].transcript);
+            if (result[0].transcript.length > 0) {
+              setSpeechText(result[0].transcript);
+              console.log("認識結果:", result[0].transcript);
+            }
           }
         }
       }
@@ -105,8 +122,10 @@ function App() {
 [ユーザの発言]に対して、20文字以内で、できるだけ会話をしてください。
 話し方はカジュアル。
 
+
 [ユーザの発言]
 ${speechText}
+
 
 [出力例]
 よかったね。私も嬉しい
