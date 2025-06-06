@@ -343,12 +343,17 @@ ${speechText}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex flex-col items-center py-8 px-2">
+      <img
+        src="/images/konchi1.png"
+        alt="サービスのメインキャラクター"
+        className="w-1/2 max-w-full h-auto mx-auto mb-8 object-contain shadow-lg"
+      />
       <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-8">
         {ggwave ? (
           <>
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center">
-                音声通信デモ
+                シュウジ・イトウになりきってコンチと会話しよう
               </h2>
               <section className="mb-8">
                 <h3 className="text-lg font-semibold mb-2">音声入力</h3>
