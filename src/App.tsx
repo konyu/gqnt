@@ -398,14 +398,15 @@ ${speechText}
 
           {/* AI応答・結果表示 */}
           <section className="flex flex-col gap-4">
-            {decodeResult && (
-              <div className="p-4 bg-gradient-to-r from-blue-50 to-yellow-50 rounded-xl border-l-4 border-blue-400 shadow flex items-center">
-                <span className="text-lg font-bold text-blue-700 mr-2">
-                  コンチ：
-                </span>
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-yellow-50 rounded-xl border-l-4 border-blue-400 shadow flex items-center">
+              <span className="text-lg font-bold text-blue-700 mr-2">
+                コンチ：
+              </span>
+              {decodeResult && (
                 <span className="text-gray-900 text-lg">{decodeResult}</span>
-              </div>
-            )}
+              )}
+            </div>
+
             {debugMode && (
               <div className="flex gap-2">
                 <button
