@@ -209,7 +209,7 @@ ${speechText}
         }
         if (res && res.length > 0) {
           const text = new TextDecoder("utf-8").decode(res);
-          setDecodeResult(`decoded: ${text}`);
+          setDecodeResult(`${text}`);
         }
       };
       mediaStream.connect(recorder);
@@ -225,7 +225,7 @@ ${speechText}
   // --- マイク受信停止 ---
   const handleStopCapture = () => {
     setIsCapturing(false);
-    setDecodeResult("Audio capture is paused! 受信開始ボタンで再開できます");
+    setDecodeResult("");
     try {
       if (recorderRef.current) {
         recorderRef.current.disconnect();
@@ -358,11 +358,13 @@ ${speechText}
               <section className="mb-8">
                 <h3 className="text-lg font-semibold mb-2">音声入力</h3>
                 <div className="flex gap-2 mb-2">
-                  <button className="custom-wide-btn"
+                  <button
+                    className="custom-wide-btn"
                     onClick={handleToggleSpeechRecognition}
                   >
                     {isListening ? "マイクOFF" : "マイクON"}
-                  <span className="arrow">&gt;</span></button>
+                    <span className="arrow">&gt;</span>
+                  </button>
                 </div>
                 <textarea
                   ref={speechTextareaRef}
@@ -374,27 +376,26 @@ ${speechText}
 
                 {/* OpenRouter AI連携デモ */}
                 <section className="mb-8">
-                  <h3 className="text-lg font-semibold mb-2">
-                    OpenRouter AI応答
-                  </h3>
+                  {decodeResult && (
+                    <div className="mt-2 p-3 bg-gray-100 rounded text-gray-800">
+                      <h3 className="text-lg font-semibold mb-2">
+                        コンチ「
+                        {decodeResult}」
+                      </h3>
+                    </div>
+                  )}
                   <div className="flex gap-2 mb-2">
-                    <button className="custom-wide-btn"
+                    <button
+                      className="custom-wide-btn"
                       onClick={handleAskOpenRouter}
                       disabled={isAiLoading || !speechText}
                     >
-                      {isAiLoading
-                        ? "送信中..."
-                        : "AIに質問（音声認識結果を送信）"}
-                    <span className="arrow">&gt;</span></button>
+                      {isAiLoading ? "送信中..." : "OpenRouterに送信"}
+                      <span className="arrow">&gt;</span>
+                    </button>
                   </div>
                   {aiError && (
-                    <p className="text-red-500 font-semibold">{ aiError}</p>
-                  )}
-                  {aiResponse && (
-                    <div className="mt-2 p-3 bg-gray-100 rounded text-gray-800">
-                      <span className="font-bold">AI応答：</span>
-                      {aiResponse}
-                    </div>
+                    <p className="text-red-500 font-semibold">{aiError}</p>
                   )}
                 </section>
               </section>
@@ -411,51 +412,21 @@ ${speechText}
                     className="flex-1 p-2 text-base rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
                     placeholder="エンコードする文字列を入力"
                   />
-                  <button className="custom-wide-btn"
-                    onClick={handleEncode}
-                  >
+                  <button className="custom-wide-btn" onClick={handleEncode}>
                     Encode
-                  <span className="arrow">&gt;</span></button>
+                    <span className="arrow">&gt;</span>
+                  </button>
                 </div>
-                {speechText && (
-                  <button className="custom-wide-btn"
-                    onClick={handleUseSpeechText}
-                  >
-                    音声認識の結果をコピー
-                  <span className="arrow">&gt;</span></button>
-                )}
               </section>
-              <button className="custom-wide-btn"
-                onClick={handleDecode}
-                disabled={!lastWaveform}
-              >
-                decode
-              <span className="arrow">&gt;</span></button>
-            </div>
-            {/* --- 追加: マイク受信ボタン --- */}
-            <div className="mb-4 flex gap-2">
-              {!isCapturing ? (
-                <button className="custom-wide-btn"
-                  onClick={handleStartCapture}
-                >
-                  受信開始（マイク）
-                <span className="arrow">&gt;</span></button>
-              ) : (
-                <button className="custom-wide-btn"
-                  onClick={handleStopCapture}
-                >
-                  受信停止
-                <span className="arrow">&gt;</span></button>
-              )}
             </div>
             {encodeError && (
-              <p className="text-red-500 font-semibold">{ encodeError}</p>
+              <p className="text-red-500 font-semibold">{encodeError}</p>
             )}
             {encodeResult && (
-              <p className="text-green-700 font-semibold">{ encodeResult}</p>
+              <p className="text-green-700 font-semibold">{encodeResult}</p>
             )}
             {decodeResult && (
-              <p className="text-blue-700 font-semibold">{ decodeResult}</p>
+              <p className="text-blue-700 font-semibold">{decodeResult}</p>
             )}
           </>
         ) : (
