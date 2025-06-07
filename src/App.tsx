@@ -1,5 +1,5 @@
 // src/App.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { loadGgWave } from "./ggwaveLoader";
 import { toggleSpeechRecognition } from "./utils/speech";
 import { chatWithOpenRouter } from "./utils/openrouter";
@@ -16,6 +16,7 @@ function convertTypedArray<
 }
 
 function App() {
+  const debugMode = import.meta.env.VITE_DEBUG === "true";
   const [ggwave, setGgWave] = useState<any>(null);
   const [encodeResult, setEncodeResult] = useState<string>("");
   const [decodeResult, setDecodeResult] = useState<string>("");
@@ -274,7 +275,7 @@ ${speechText}
       );
       // main.js同様にFloat32Arrayへ型変換
       const buf = convertTypedArray(waveform, Float32Array);
-      setEncodeResult(`waveform length: ${buf.length}`);
+      // setEncodeResult(`waveform length: ${buf.length}`);
       setLastWaveform(buf);
       // 再生
       handlePlay(buf);
@@ -384,50 +385,57 @@ ${speechText}
                       </h3>
                     </div>
                   )}
-                  <div className="flex gap-2 mb-2">
-                    <button
-                      className="custom-wide-btn"
-                      onClick={handleAskOpenRouter}
-                      disabled={isAiLoading || !speechText}
-                    >
-                      {isAiLoading ? "送信中..." : "OpenRouterに送信"}
-                      <span className="arrow">&gt;</span>
-                    </button>
-                  </div>
+
+                  {debugMode && (
+                    <div className="flex gap-2 mb-2">
+                      <button
+                        className="custom-wide-btn"
+                        onClick={handleAskOpenRouter}
+                        disabled={isAiLoading || !speechText}
+                      >
+                        {isAiLoading ? "送信中..." : "OpenRouterに送信"}
+                        <span className="arrow">&gt;</span>
+                      </button>
+                    </div>
+                  )}
+
                   {aiError && (
                     <p className="text-red-500 font-semibold">{aiError}</p>
                   )}
                 </section>
               </section>
 
-              <section className="mb-8">
-                <h3 className="text-lg font-semibold mb-2">
-                  エンコードする文字列
-                </h3>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    className="flex-1 p-2 text-base rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    placeholder="エンコードする文字列を入力"
-                  />
-                  <button className="custom-wide-btn" onClick={handleEncode}>
-                    Encode
-                    <span className="arrow">&gt;</span>
-                  </button>
-                </div>
-              </section>
+              {debugMode && (
+                <section className="mb-8">
+                  <h3 className="text-lg font-semibold mb-2">
+                    エンコードする文字列
+                  </h3>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      className="flex-1 p-2 text-base rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                      placeholder="エンコードする文字列を入力"
+                    />
+                    <button className="custom-wide-btn" onClick={handleEncode}>
+                      Encode
+                      <span className="arrow">&gt;</span>
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              {debugMode && encodeError && (
+                <p className="text-red-500 font-semibold">{encodeError}</p>
+              )}
+              {debugMode && encodeResult && (
+                <p className="text-green-700 font-semibold">{encodeResult}</p>
+              )}
+              {debugMode && decodeResult && (
+                <p className="text-blue-700 font-semibold">{decodeResult}</p>
+              )}
             </div>
-            {encodeError && (
-              <p className="text-red-500 font-semibold">{encodeError}</p>
-            )}
-            {encodeResult && (
-              <p className="text-green-700 font-semibold">{encodeResult}</p>
-            )}
-            {decodeResult && (
-              <p className="text-blue-700 font-semibold">{decodeResult}</p>
-            )}
           </>
         ) : (
           <p className="text-gray-500 text-center">ggwave 読み込み中...</p>
