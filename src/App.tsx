@@ -343,104 +343,124 @@ ${speechText}
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex flex-col items-center py-8 px-2">
-      <img
-        src="/images/konchi1.png"
-        alt="サービスのメインキャラクター"
-        className="w-1/2 max-w-full h-auto mx-auto mb-8 object-contain shadow-lg"
-      />
-      <div className="w-full max-w-xl bg-white shadow-lg rounded-xl p-8">
-        {ggwave ? (
-          <>
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center">
-                シュウジ・イトウになりきってコンチと会話しよう
-              </h2>
-              <section className="mb-8">
-                <h3 className="text-lg font-semibold mb-2">音声入力</h3>
-                <div className="flex gap-2 mb-2">
-                  <button
-                    className="custom-wide-btn"
-                    onClick={handleToggleSpeechRecognition}
-                  >
-                    {isListening ? "マイクOFF" : "マイクON"}
-                    <span className="arrow">&gt;</span>
-                  </button>
-                </div>
-                <textarea
-                  ref={speechTextareaRef}
-                  value={speechText}
-                  onChange={(e) => setSpeechText(e.target.value)}
-                  className="w-full min-h-[100px] p-2 text-base rounded border border-gray-300 mb-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                  placeholder="音声認識の結果がここに表示されます"
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex flex-col">
+      {/* --- MAIN CONTENT --- */}
+      <main className="flex-1 flex flex-col items-center justify-center py-12 px-2">
+        {/* キャラクターイメージ */}
+        <div className="relative -mb-16 z-20">
+          <img
+            src="/images/konchi1.png"
+            alt="サービスのメインキャラクター"
+            className="w-60 h-60 rounded-2xl object-contain mx-auto shadow-2xl border-4 border-white bg-white"
+            style={{ marginTop: "-48px" }}
+          />
+        </div>
+        {/* メインカード */}
+        <section className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl p-10 pt-24 mt-0 relative z-10 flex flex-col gap-10 border border-gray-100">
+          {/* タイトル */}
+          <div className="flex flex-col items-center mb-4">
+            <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight text-center mb-2 leading-tight">
+              <span className="block text-blue-700 uppercase text-base tracking-widest font-bold mb-1">
+                シュウジ・イトウになりきって
+              </span>
+              コンチと会話しよう
+            </h1>
+            <div className="h-1 w-16 bg-gradient-to-r from-blue-500 via-yellow-400 to-red-500 rounded-full mb-2" />
+          </div>
+
+          {/* 音声入力セクション */}
+          <section className="flex flex-col gap-6">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <span className="block w-2 h-6 bg-blue-500 rounded-full mr-2" />
+              音声入力
+            </h2>
+            <div className="flex gap-4 items-center">
+              <button
+                className={`font-extrabold rounded-xl px-8 py-3 text-lg transition shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 flex items-center gap-2 ${
+                  isListening
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-konchi-pink hover:bg-konchi-pink-dark text-white"
+                }`}
+                onClick={handleToggleSpeechRecognition}
+              >
+                {isListening ? "マイクOFF" : "マイクON"}
+                <span className="text-2xl font-black">&gt;</span>
+              </button>
+            </div>
+            <textarea
+              ref={speechTextareaRef}
+              value={speechText}
+              onChange={(e) => setSpeechText(e.target.value)}
+              className="w-full min-h-[100px] p-3 text-lg rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-gray-50"
+              placeholder="音声認識の結果がここに表示されます"
+            />
+          </section>
+
+          {/* AI応答・結果表示 */}
+          <section className="flex flex-col gap-4">
+            {decodeResult && (
+              <div className="p-4 bg-gradient-to-r from-blue-50 to-yellow-50 rounded-xl border-l-4 border-blue-400 shadow flex items-center">
+                <span className="text-lg font-bold text-blue-700 mr-2">
+                  コンチ：
+                </span>
+                <span className="text-gray-900 text-lg">{decodeResult}</span>
+              </div>
+            )}
+            {debugMode && (
+              <div className="flex gap-2">
+                <button
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-6 py-2 transition shadow"
+                  onClick={handleAskOpenRouter}
+                  disabled={isAiLoading || !speechText}
+                >
+                  {isAiLoading ? "送信中..." : "OpenRouterに送信"}
+                  <span className="ml-2 text-xl">&gt;</span>
+                </button>
+              </div>
+            )}
+            {aiError && <p className="text-red-500 font-semibold">{aiError}</p>}
+          </section>
+
+          {/* デバッグ用エンコード・デコード */}
+          {debugMode && (
+            <section className="flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <span className="block w-2 h-6 bg-yellow-400 rounded-full mr-2" />
+                エンコードする文字列
+              </h3>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  className="flex-1 p-3 text-lg rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-yellow-300 bg-gray-50"
+                  placeholder="エンコードする文字列を入力"
                 />
-
-                {/* OpenRouter AI連携デモ */}
-                <section className="mb-8">
-                  {decodeResult && (
-                    <div className="mt-2 p-3 bg-gray-100 rounded text-gray-800">
-                      <h3 className="text-lg font-semibold mb-2">
-                        コンチ「
-                        {decodeResult}」
-                      </h3>
-                    </div>
-                  )}
-
-                  {debugMode && (
-                    <div className="flex gap-2 mb-2">
-                      <button
-                        className="custom-wide-btn"
-                        onClick={handleAskOpenRouter}
-                        disabled={isAiLoading || !speechText}
-                      >
-                        {isAiLoading ? "送信中..." : "OpenRouterに送信"}
-                        <span className="arrow">&gt;</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {aiError && (
-                    <p className="text-red-500 font-semibold">{aiError}</p>
-                  )}
-                </section>
-              </section>
-
-              {debugMode && (
-                <section className="mb-8">
-                  <h3 className="text-lg font-semibold mb-2">
-                    エンコードする文字列
-                  </h3>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      type="text"
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      className="flex-1 p-2 text-base rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                      placeholder="エンコードする文字列を入力"
-                    />
-                    <button className="custom-wide-btn" onClick={handleEncode}>
-                      Encode
-                      <span className="arrow">&gt;</span>
-                    </button>
-                  </div>
-                </section>
-              )}
-
-              {debugMode && encodeError && (
+                <button
+                  className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl px-6 py-2 transition shadow"
+                  onClick={handleEncode}
+                >
+                  Encode
+                  <span className="ml-2 text-xl">&gt;</span>
+                </button>
+              </div>
+              {encodeError && (
                 <p className="text-red-500 font-semibold">{encodeError}</p>
               )}
-              {debugMode && encodeResult && (
+              {encodeResult && (
                 <p className="text-green-700 font-semibold">{encodeResult}</p>
               )}
-              {debugMode && decodeResult && (
+              {decodeResult && (
                 <p className="text-blue-700 font-semibold">{decodeResult}</p>
               )}
-            </div>
-          </>
-        ) : (
-          <p className="text-gray-500 text-center">ggwave 読み込み中...</p>
-        )}
-      </div>
+            </section>
+          )}
+        </section>
+        {/* フッター */}
+        <footer className="w-full text-center mt-8 text-sm text-gray-400">
+          <span>© 2025 GQuuuuuuX Fan Project</span>
+        </footer>
+      </main>
     </div>
   );
 }
