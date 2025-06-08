@@ -361,7 +361,7 @@ ${speechText}
         {/* キャラクターイメージ */}
         <div className="relative -mb-16 z-20">
           <img
-            src="/images/konchi1.png"
+            src="images/konchi1.png"
             alt="サービスのメインキャラクター"
             className="w-60 h-60 rounded-2xl object-contain mx-auto shadow-2xl border-4 border-white bg-white"
             style={{ marginTop: "-48px" }}
