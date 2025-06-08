@@ -1,5 +1,6 @@
 // src/App.tsx
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import debounce from "lodash/debounce";
 import { loadGgWave } from "./ggwaveLoader";
 import { toggleSpeechRecognition } from "./utils/speech";
 import { chatWithOpenRouter } from "./utils/openrouter";
@@ -33,12 +34,23 @@ function App() {
   const [speechText, setSpeechText] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
 
-  // speechText更新時にOpenRouter AIへ問い合わせ
+  // speechText更新時にOpenRouter AIへ問い合わせ（debounceで制御）
+  const debouncedAskOpenRouter = useMemo(
+    () =>
+      debounce(() => {
+        if (speechText !== "") {
+          handleAskOpenRouter();
+        }
+      }, 1000), // 1000ms入力が止まったら送信
+    [speechText]
+  );
   useEffect(() => {
-    if (speechText !== "") {
-      handleAskOpenRouter();
-    }
-  }, [speechText]);
+    debouncedAskOpenRouter();
+    // cleanupでキャンセル
+    return () => {
+      debouncedAskOpenRouter.cancel();
+    };
+  }, [speechText, debouncedAskOpenRouter]);
   const speechTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // OpenRouter AI
