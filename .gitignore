@@ -1,5 +1,15 @@
 # dependencies
 /node_modules/
+/functions/node_modules/
+
+# Cloudflare Functions local env（機密情報はgit管理しない）
+/functions/.dev.vars
+
+# 一般的な環境変数ファイル
+.env
+.env.*
+
+.wrangler
 
 # production
 /dist/

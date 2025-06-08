@@ -5,17 +5,16 @@
   "type": "module",
   "homepage": "https://konyu.github.io/gqnt",
   "scripts": {
-    "dev": "vite",
+    "dev:vite": "vite",
+    "dev:functions": "wrangler pages dev ./functions/api/openrouter.ts",
+    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:functions\"",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "biome check .",
-    "format": "biome format .",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "format": "biome format ."
   },
   "dependencies": {
     "ggwave": "^0.4.0",
-    "gh-pages": "^6.3.0",
     "lodash": "^4.17.21",
     "openai": "^5.1.0",
     "react": "^18.2.0",
@@ -28,6 +27,7 @@
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.21",
     "biome": "^0.2.2",
+    "concurrently": "^9.1.2",
     "postcss": "^8.5.4",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.0.0",

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types"],
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
+  },
+  "include": ["api"]
+}
+

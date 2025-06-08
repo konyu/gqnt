@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import debounce from "lodash/debounce";
 import { loadGgWave } from "./ggwaveLoader";
 import { toggleSpeechRecognition } from "./utils/speech";
-import { chatWithOpenRouter } from "./utils/openrouter";
+
 import { hiraToKata } from "./utils/kana";
 
 // main.jsの型変換ユーティリティをTypeScript化
@@ -119,39 +119,32 @@ function App() {
 
   // OpenRouter AIへ問い合わせ
   const handleAskOpenRouter = async () => {
+    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@");
     setIsAiLoading(true);
     setAiError("");
     setAiResponse("");
     try {
-      const res = await chatWithOpenRouter([
-        // {
-        //   role: "system",
-        //   content:
-        // },
-        {
-          role: "system",
-          content: `
-あなたはカタコトの短い日本語で会話をするロボットです。
-[ユーザの発言]に対して、20文字以内で、できるだけ会話をしてください。
-話し方はカジュアル。
+      // Cloudflare Functions経由でOpenRouter APIを呼び出す
+      const res = await fetch("/api/openrouter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: speechText }), // 音声認識テキストを送信
+      });
 
+      if (!res.ok) {
+        throw new Error(`API Error: ${res.status}`);
+      }
 
-[ユーザの発言]
-${speechText}
+      const data = await res.json();
+      console.log("OpenRouter API Response:", data);
+      const responseText = data.choices?.[0]?.message?.content || "";
+      console.log("Response Text:", responseText);
 
-
-[出力例]
-よかったね。私も嬉しい
-`,
-        },
-      ]);
-      const resContent = hiraToKata(res.content ?? "");
-
-      setAiResponse(resContent || "(no response)");
-
-      setInputText(resContent);
-    } catch (e: any) {
-      setAiError(e.message || String(e));
+      // ここで音声をencodeしている
+      setInputText(responseText);
+      setAiResponse(responseText);
+    } catch (err) {
+      setAiError("AI連携エラー");
     } finally {
       setIsAiLoading(false);
     }
