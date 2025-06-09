@@ -5,9 +5,7 @@
   "type": "module",
   "homepage": "https://konyu.github.io/gqnt",
   "scripts": {
-    "dev:vite": "vite",
-    "dev:functions": "wrangler pages dev ./functions/api/openrouter.ts",
-    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:functions\"",
+    "dev": "wrangler dev",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "biome check .",
@@ -21,6 +19,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250607.0",
     "@types/lodash": "^4.17.17",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",

@@ -119,7 +119,6 @@ function App() {
 
   // OpenRouter AIへ問い合わせ
   const handleAskOpenRouter = async () => {
-    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@");
     setIsAiLoading(true);
     setAiError("");
     setAiResponse("");
@@ -138,11 +137,13 @@ function App() {
       const data = await res.json();
       console.log("OpenRouter API Response:", data);
       const responseText = data.choices?.[0]?.message?.content || "";
-      console.log("Response Text:", responseText);
+
+      const responseTextKata = hiraToKata(responseText);
+      console.log("Response Text:", responseTextKata);
 
       // ここで音声をencodeしている
-      setInputText(responseText);
-      setAiResponse(responseText);
+      setInputText(responseTextKata);
+      setAiResponse(responseTextKata);
     } catch (err) {
       setAiError("AI連携エラー");
     } finally {

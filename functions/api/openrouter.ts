@@ -46,7 +46,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     ],
   };
 
-
   const apiKey = context.env.OPENROUTER_API_KEY;
 
   const openrouterRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -67,5 +66,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
-  }) as unknown as import('@cloudflare/workers-types').Response;
+  });
 };
+
+
