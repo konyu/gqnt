@@ -1,8 +1,8 @@
-import { ExecutionContext, Fetcher } from '@cloudflare/workers-types';
+// Cloudflare Workers 型競合回避のためimport削除
 // Request, Response はグローバル
 
 type Env = {
-  ASSETS: Fetcher;
+  ASSETS: any;
   OPENROUTER_API_KEY: string;
   ALLOWED_ORIGIN?: string;
 };
@@ -80,7 +80,7 @@ ${body.message}
       "Content-Type": openrouterRes.headers.get("Content-Type") || "application/json",
       "Access-Control-Allow-Origin": allowedOrigin,
     },
-  });
+  }) as unknown as Response;
 }
 
 

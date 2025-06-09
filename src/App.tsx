@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 // src/App.tsx
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import debounce from "lodash/debounce";
@@ -16,10 +17,26 @@ function convertTypedArray<
   return new type(buffer);
 }
 
+// 型定義（SpeechRecognitionEventのみ拡張）
+declare global {
+  interface SpeechRecognitionEvent extends Event {
+    resultIndex: number;
+    results: {
+      isFinal: boolean;
+      0: { transcript: string };
+      length: number;
+    }[];
+    length: number;
+  }
+}
+
+
+
 function App() {
   const debugMode = import.meta.env.VITE_DEBUG === "true";
-  const [ggwave, setGgWave] = useState<any>(null);
-  const [encodeResult, setEncodeResult] = useState<string>("");
+  const [ggwave, setGgWave] = useState<{ [key: string]: any } | null>(null);
+  // encodeResultは未使用なので削除
+
   const [decodeResult, setDecodeResult] = useState<string>("");
   const [lastWaveform, setLastWaveform] = useState<Float32Array | null>(null);
   const [inputText, setInputText] = useState<string>("");
@@ -54,25 +71,20 @@ function App() {
   const speechTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // OpenRouter AI
-  const [aiResponse, setAiResponse] = useState<string>("");
+  // aiResponseは未使用なので削除
+
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string>("");
 
-  const [protocolIdInfo, setProtocolIdInfo] = useState<string>("");
+  const paramsRef = useRef<{ [key: string]: any } | null>(null);
+  const instanceRef = useRef<{ [key: string]: any } | null>(null);
 
-  // ggwave params/instance をグローバルで保持
-  const paramsRef = useRef<any>(null);
-  const instanceRef = useRef<any>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null); // DOM libで解決
 
-  // Audio context for playback
-  const audioCtxRef = useRef<AudioContext | null>(null);
-
-  // --- ggwaveマイク受信用 ---
   const [isCapturing, setIsCapturing] = useState(false);
-  const recorderRef = useRef<ScriptProcessorNode | null>(null);
-  const mediaStreamRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const recorderRef = useRef<ScriptProcessorNode | null>(null); // DOM libで解決
+  const mediaStreamRef = useRef<MediaStreamAudioSourceNode | null>(null); // DOM libで解決
 
-  // 音声認識のトグル処理
   const handleToggleSpeechRecognition = () => {
     if (!speechTextareaRef.current) return;
 
@@ -86,11 +98,11 @@ function App() {
       () => {
         setIsListening(false);
       },
-      (err: any) => {
+      (err: unknown) => {
         console.error("音声認識エラー:", err);
         setIsListening(false);
       },
-      (event: any) => {
+      (event: SpeechRecognitionEvent) => {
         // 最終認識結果だけspeechTextに反映
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           const result = event.results[i];
@@ -118,10 +130,10 @@ function App() {
   };
 
   // OpenRouter AIへ問い合わせ
-  const handleAskOpenRouter = async () => {
+  const handleAskOpenRouter = async (): Promise<void> => {
     setIsAiLoading(true);
     setAiError("");
-    setAiResponse("");
+    
     try {
       // Cloudflare Functions経由でOpenRouter APIを呼び出す
       const res = await fetch("/api/openrouter", {
@@ -134,18 +146,19 @@ function App() {
         throw new Error(`API Error: ${res.status}`);
       }
 
-      const data = await res.json();
+      const data: any = await res.json();
       console.log("OpenRouter API Response:", data);
       const responseText = data.choices?.[0]?.message?.content || "";
 
       const responseTextKata = hiraToKata(responseText);
       console.log("Response Text:", responseTextKata);
 
-      // ここで音声をencodeしている
       setInputText(responseTextKata);
-      setAiResponse(responseTextKata);
     } catch (err) {
       setAiError("AI連携エラー");
+      if (import.meta.env.MODE === "development") {
+        console.error(err);
+      }
     } finally {
       setIsAiLoading(false);
     }
@@ -157,14 +170,13 @@ function App() {
       console.log("ggwave loaded", ggwaveObj);
       if (typeof ggwaveObj.ProtocolId === "function") {
         const proto = ggwaveObj.ProtocolId();
-        setProtocolIdInfo(JSON.stringify(proto));
         console.log("ProtocolId():", proto);
       }
     });
   }, []);
 
   // --- マイク受信開始 ---
-  const handleStartCapture = async () => {
+  const handleStartCapture = async (): Promise<void> => {
     if (!ggwave) return;
     setDecodeResult("");
     setIsCapturing(true);
@@ -175,14 +187,16 @@ function App() {
     }
     if (!paramsRef.current) {
       paramsRef.current = ggwave.getDefaultParameters();
-      paramsRef.current.sampleRateInp = audioCtxRef.current.sampleRate;
-      paramsRef.current.sampleRateOut = audioCtxRef.current.sampleRate;
+      if (paramsRef.current && audioCtxRef.current) {
+        paramsRef.current.sampleRateInp = audioCtxRef.current.sampleRate;
+        paramsRef.current.sampleRateOut = audioCtxRef.current.sampleRate;
+      }
     }
     if (!instanceRef.current) {
       instanceRef.current = ggwave.init(paramsRef.current);
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const stream = await (window.navigator as Navigator).mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
           autoGainControl: false,
@@ -200,7 +214,7 @@ function App() {
         numberOfInputChannels,
         numberOfOutputChannels
       );
-      recorder.onaudioprocess = (e) => {
+      recorder.onaudioprocess = (e: AudioProcessingEvent) => {
         const source = e.inputBuffer;
         // ggwave.decode expects Int8Array
         const int8buf = convertTypedArray(
@@ -224,13 +238,13 @@ function App() {
       recorderRef.current = recorder;
       setDecodeResult("Listening ...");
     } catch (err) {
-      setDecodeResult(`マイク取得エラー: ${String(err)}`);
+      setDecodeResult(`マイク取得エラー: ${err instanceof Error ? err.message : String(err)}`);
       setIsCapturing(false);
     }
   };
 
   // --- マイク受信停止 ---
-  const handleStopCapture = () => {
+  const handleStopCapture = (): void => {
     setIsCapturing(false);
     setDecodeResult("");
     try {
@@ -243,7 +257,7 @@ function App() {
       }
       recorderRef.current = null;
       mediaStreamRef.current = null;
-    } catch (e) {
+    } catch (_e) {
       // ignore
     }
   };
@@ -258,7 +272,7 @@ function App() {
   const [encodeError, setEncodeError] = useState<string>("");
 
   // main.js準拠: encode→Float32Arrayに変換してAudioContextで再生
-  const handleEncode = () => {
+  const handleEncode = (): void => {
     setEncodeError("");
     setDecodeResult("");
     if (!ggwave) return;
@@ -281,17 +295,16 @@ function App() {
       );
       // main.js同様にFloat32Arrayへ型変換
       const buf = convertTypedArray(waveform, Float32Array);
-      // setEncodeResult(`waveform length: ${buf.length}`);
       setLastWaveform(buf);
       // 再生
       handlePlay(buf);
     } catch (e) {
-      setEncodeError(`encode error: ${String(e)}`);
+      setEncodeError(`encode error: ${e instanceof Error ? e.message : String(e)}`);
     }
   };
 
   // main.jsの再生処理に合わせてbufを引数で受ける
-  const handlePlay = async (bufOverride?: Float32Array | null) => {
+  const handlePlay = async (bufOverride?: Float32Array | null): Promise<void> => {
     setEncodeError("");
     const buf = bufOverride || lastWaveform;
     if (!buf) return;
@@ -313,12 +326,12 @@ function App() {
         // 必要に応じてctx.close();
       };
     } catch (e) {
-      setEncodeError(`playback error: ${String(e)}`);
+      setEncodeError(`playback error: ${e instanceof Error ? e.message : String(e)}`);
     }
   };
 
   // main.js準拠: decode時にInt8Arrayへ型変換してdecode
-  const handleDecode = () => {
+  const handleDecode = (): void => {
     if (!ggwave) return;
 
     // params と instance が初期化されていない場合は初期化
@@ -344,7 +357,7 @@ function App() {
         setDecodeResult("decoded: (empty or null)");
       }
     } catch (e) {
-      setDecodeResult(`decode error: ${String(e)}`);
+      setDecodeResult(`decode error: ${e instanceof Error ? e.message : String(e)}`);
     }
   };
 
@@ -454,12 +467,8 @@ function App() {
               {encodeError && (
                 <p className="text-red-500 font-semibold">{encodeError}</p>
               )}
-              {encodeResult && (
-                <p className="text-green-700 font-semibold">{encodeResult}</p>
-              )}
-              {decodeResult && (
-                <p className="text-blue-700 font-semibold">{decodeResult}</p>
-              )}
+              
+              
             </section>
           )}
         </section>
