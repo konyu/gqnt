@@ -1,4 +1,3 @@
 name = "gqnt-local-dev"
 compatibility_date = "2025-06-08"
-main = "functions/api/openrouter.ts"
 pages_build_output_dir = "./dist"
