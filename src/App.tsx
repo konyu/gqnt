@@ -30,8 +30,6 @@ declare global {
   }
 }
 
-
-
 function App() {
   const debugMode = import.meta.env.VITE_DEBUG === "true";
   const [ggwave, setGgWave] = useState<{ [key: string]: any } | null>(null);
@@ -133,7 +131,7 @@ function App() {
   const handleAskOpenRouter = async (): Promise<void> => {
     setIsAiLoading(true);
     setAiError("");
-    
+
     try {
       // Cloudflare Functions経由でOpenRouter APIを呼び出す
       const res = await fetch("/api/openrouter", {
@@ -196,7 +194,9 @@ function App() {
       instanceRef.current = ggwave.init(paramsRef.current);
     }
     try {
-      const stream = await (window.navigator as Navigator).mediaDevices.getUserMedia({
+      const stream = await (
+        window.navigator as Navigator
+      ).mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
           autoGainControl: false,
@@ -238,7 +238,9 @@ function App() {
       recorderRef.current = recorder;
       setDecodeResult("Listening ...");
     } catch (err) {
-      setDecodeResult(`マイク取得エラー: ${err instanceof Error ? err.message : String(err)}`);
+      setDecodeResult(
+        `マイク取得エラー: ${err instanceof Error ? err.message : String(err)}`
+      );
       setIsCapturing(false);
     }
   };
@@ -299,12 +301,16 @@ function App() {
       // 再生
       handlePlay(buf);
     } catch (e) {
-      setEncodeError(`encode error: ${e instanceof Error ? e.message : String(e)}`);
+      setEncodeError(
+        `encode error: ${e instanceof Error ? e.message : String(e)}`
+      );
     }
   };
 
   // main.jsの再生処理に合わせてbufを引数で受ける
-  const handlePlay = async (bufOverride?: Float32Array | null): Promise<void> => {
+  const handlePlay = async (
+    bufOverride?: Float32Array | null
+  ): Promise<void> => {
     setEncodeError("");
     const buf = bufOverride || lastWaveform;
     if (!buf) return;
@@ -326,7 +332,9 @@ function App() {
         // 必要に応じてctx.close();
       };
     } catch (e) {
-      setEncodeError(`playback error: ${e instanceof Error ? e.message : String(e)}`);
+      setEncodeError(
+        `playback error: ${e instanceof Error ? e.message : String(e)}`
+      );
     }
   };
 
@@ -357,7 +365,9 @@ function App() {
         setDecodeResult("decoded: (empty or null)");
       }
     } catch (e) {
-      setDecodeResult(`decode error: ${e instanceof Error ? e.message : String(e)}`);
+      setDecodeResult(
+        `decode error: ${e instanceof Error ? e.message : String(e)}`
+      );
     }
   };
 
@@ -375,7 +385,7 @@ function App() {
           />
         </div>
         {/* メインカード */}
-        <section className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl p-10 pt-24 mt-0 relative z-10 flex flex-col gap-10 border border-gray-100">
+        <section className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl p-5 pt-24 mt-0 relative z-10 flex flex-col gap-10 border border-gray-100">
           {/* タイトル */}
           <div className="flex flex-col items-center mb-4">
             <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight text-center mb-2 leading-tight">
@@ -467,8 +477,6 @@ function App() {
               {encodeError && (
                 <p className="text-red-500 font-semibold">{encodeError}</p>
               )}
-              
-              
             </section>
           )}
         </section>
