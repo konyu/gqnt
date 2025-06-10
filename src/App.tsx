@@ -91,7 +91,6 @@ function App() {
       "ja-JP",
       () => {
         setIsListening(true);
-        // setSpeechText(""); // ここはクリアしない
       },
       () => {
         setIsListening(false);
@@ -385,7 +384,7 @@ function App() {
           />
         </div>
         {/* メインカード */}
-        <section className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl p-5 pt-24 mt-0 relative z-10 flex flex-col gap-10 border border-gray-100">
+        <section className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl p-2 pt-24 mt-0 relative z-10 flex flex-col gap-10 border border-gray-100">
           {/* タイトル */}
           <div className="flex flex-col items-center mb-4">
             <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight text-center mb-2 leading-tight">
@@ -420,7 +419,7 @@ function App() {
               ref={speechTextareaRef}
               value={speechText}
               onChange={(e) => setSpeechText(e.target.value)}
-              className="w-full min-h-[100px] p-3 text-lg rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-gray-50"
+              className="w-full min-h-[50px] p-3 text-lg rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-gray-50"
               placeholder="音声認識の結果がここに表示されます"
             />
           </section>
@@ -429,7 +428,7 @@ function App() {
           <section className="flex flex-col gap-4">
             <div className="p-4 bg-gradient-to-r from-blue-50 to-yellow-50 rounded-xl border-l-4 border-blue-400 shadow flex items-center">
               <span className="text-lg font-bold text-blue-700 mr-2">
-                コンチ：
+                コンチ:
               </span>
               {decodeResult && (
                 <span className="text-gray-900 text-lg">{decodeResult}</span>
@@ -482,7 +481,7 @@ function App() {
         </section>
         {/* フッター */}
         <footer className="w-full text-center mt-8 text-sm text-gray-400">
-          <span>© 2025 GQuuuuuuX Fan Project</span>
+          <span>© 2025 @kon_yu</span>
         </footer>
       </main>
     </div>

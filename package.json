@@ -5,6 +5,7 @@
   "type": "module",
   "homepage": "https://konyu.github.io/gqnt",
   "scripts": {
+    "dev:vite": "vite dev",
     "dev": "wrangler dev",
     "build": "vite build",
     "preview": "vite preview",
