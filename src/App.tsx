@@ -420,7 +420,7 @@ function App() {
               value={speechText}
               onChange={(e) => setSpeechText(e.target.value)}
               className="w-full min-h-[50px] p-3 text-lg rounded-xl border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-gray-50"
-              placeholder="音声認識の結果がここに表示されます"
+              placeholder="マイクをオンにして喋った内容が表示されるよ"
             />
           </section>
 
@@ -433,6 +433,9 @@ function App() {
               {decodeResult && (
                 <span className="text-gray-900 text-lg">{decodeResult}</span>
               )}
+            </div>
+            <div className="p-2 text-yellow-800 text-sm flex items-center">
+              ※マイクでスピーカーの音を聞かないとコンチの声を翻訳できないよ
             </div>
 
             {debugMode && (
