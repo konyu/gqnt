@@ -5,3 +5,10 @@ compatibility_date = "2025-06-08"
 [assets]
 directory = "./dist"
 binding = "ASSETS"
+
+
+[vars]
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_REFERER=https://example.com
+OPENROUTER_TITLE=GQExample
+ALLOWED_ORIGIN = "https://gqnt.yusukedrive.workers.dev"
