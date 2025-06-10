@@ -8,7 +8,7 @@ binding = "ASSETS"
 
 
 [vars]
-OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
-OPENROUTER_REFERER=https://example.com
-OPENROUTER_TITLE=GQExample
-ALLOWED_ORIGIN = "https://gqnt.yusukedrive.workers.dev"
+OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
+OPENROUTER_REFERER="https://example.com"
+OPENROUTER_TITLE="GQExample"
+ALLOWED_ORIGIN="https://gqnt.yusukedrive.workers.dev"
