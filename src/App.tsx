@@ -153,7 +153,7 @@ function App() {
       setInputText(responseTextKata);
     } catch (err) {
       setAiError("AI連携エラー");
-      if (import.meta.env.MODE === "development") {
+      if (debugMode) {
         console.error(err);
       }
     } finally {
