@@ -384,7 +384,7 @@ function App() {
           />
         </div>
         {/* メインカード */}
-        <section className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl p-2 pt-24 mt-0 relative z-10 flex flex-col gap-10 border border-gray-100">
+        <section className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl px-2 pb-10 pt-24 mt-0 relative z-10 flex flex-col gap-10 border border-gray-100">
           {/* タイトル */}
           <div className="flex flex-col items-center mb-4">
             <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight text-center mb-2 leading-tight">
